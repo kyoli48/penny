@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { Webhook } from "svix";
 import { db } from "@/lib/db";
 
+// Clerk user.created webhook
+
 export async function POST(req: Request) {
   try {
     if (process.env.NODE_ENV === "development") {
