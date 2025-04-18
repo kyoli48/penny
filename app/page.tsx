@@ -1,15 +1,22 @@
+// app/page.tsx
 import Link from "next/link";
 
-export default async function Home() {
+export default function Home() {
   return (
-    <>      <main className="flex-1 flex flex-col gap-6 px-4">
-        <Link
-          href="/protected/expenses"
-          className="inline-block mt-4 px-4 py-2 rounded bg-blue-600 text-white text-center font-semibold hover:bg-blue-700 transition"
-        >
-          Go to Your Expenses
-        </Link>
-      </main>
-    </>
+    <main className="flex-1 flex flex-col items-center justify-center min-h-[70vh] gap-8 px-4">
+      <h1 className="text-4xl font-bold text-green-700">Penny</h1>
+      <p className="text-lg text-gray-700 max-w-xl text-center">
+        Effortlessly track shared expenses, split bills, and manage group spending with friends or roommates.
+      </p>
+      <Link
+        href="/protected/expenses"
+        className="px-8 py-4 rounded-lg bg-green-600 text-white text-xl font-semibold shadow-lg hover:bg-green-700 transition"
+      >
+        Get Started
+      </Link>
+      <div className="mt-8 text-gray-500 text-sm">
+        Built with Next.js, Clerk, and Prisma.
+      </div>
+    </main>
   );
 }

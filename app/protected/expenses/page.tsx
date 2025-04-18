@@ -13,7 +13,11 @@ function ExpenseList({ expenses, onEdit, onDelete }) {
         <li key={exp.id}>
           <strong>{exp.name}</strong> — ${exp.amount}
           <br />
-          Participants: {exp.users?.map(u => u.userId).join(', ') || 'None'}
+          {exp.description && <span> Description: {exp.description} </span>}
+          <br />
+          Paid: {exp.paid ? 'Yes' : 'No'}
+          <br />
+          Participants: {exp.users.map(u => u.userId).join(', ')}
           <br />
           <button onClick={() => onEdit(exp)} className="mr-2 text-blue-600">Edit</button>
           <button onClick={() => onDelete(exp.id)} className="text-red-600">Delete</button>
@@ -218,7 +222,6 @@ export default function ExpensesPage() {
   
     return (
         <div>
-        <Link href="/" className="inline-block mt-4 px-4 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 transition">Home</Link>
         <CreateExpenseForm onExpenseCreated={fetchExpenses} />
         <h1 className="text-2xl font-bold bg-gray-200">Your Expenses</h1>
         {editingExpense && (
