@@ -9,7 +9,7 @@ export default function Home() {
         Effortlessly track shared expenses, split bills, and manage group spending with friends or roommates.
       </p>
       <Link
-        href="/protected/expenses"
+        href="/expenses"
         className="px-8 py-4 rounded-lg bg-green-600 text-white text-xl font-semibold shadow-lg hover:bg-green-700 transition"
       >
         Get Started
