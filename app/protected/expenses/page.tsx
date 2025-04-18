@@ -56,20 +56,44 @@ function CreateExpenseForm({ onExpenseCreated }) {
     };
   
     return (
-      <form onSubmit={handleSubmit} className="mb-6">
-        <input value={name} onChange={e => setName(e.target.value)} placeholder="Expense Name" required />
-        <input value={amount} onChange={e => setAmount(e.target.value)} placeholder="Amount" type="number" required />
-        <input value={description} onChange={e => setDescription(e.target.value)} placeholder="Description" />
-        <label>
-          Paid:
-          <input type="checkbox" checked={paid} onChange={e => setPaid(e.target.checked)} />
-        </label>
-        <input
-          value={participantIds}
-          onChange={e => setParticipantIds(e.target.value)}
-          placeholder="Participant User IDs (comma separated)"
-        />
-        <button type="submit">Add Expense</button>
+      <form onSubmit={handleSubmit} className="mb-6 p-4 border rounded bg-gray-50">
+          <div className="flex items-center gap-x-2 flex-wrap">
+            <input 
+                value={name} 
+                onChange={e => setName(e.target.value)} 
+                placeholder="Expense Name" 
+                required
+                className="p-1 border rounded w-36"
+            />
+            <input 
+                value={amount} 
+                onChange={e => setAmount(e.target.value)} 
+                placeholder="Amount" type="number" 
+                required 
+                className="p-1 border rounded w-24"
+            />
+            <input 
+                value={description} 
+                onChange={e => setDescription(e.target.value)} 
+                placeholder="Description" 
+                className="p-1 border rounded w-48"
+            />
+            <label className="flex items-center gap-x-1 text-green-600 font-semibold">
+                Paid:
+                <input 
+                    type="checkbox" 
+                    checked={paid}
+                    onChange={e => setPaid(e.target.checked)} 
+                />
+            </label>
+            <input
+                value={participantIds}
+                onChange={e => setParticipantIds(e.target.value)}
+                placeholder="Participant User IDs (comma separated)"
+                className="border rounded flex-1"
+            />
+            <button type="submit" className="text-blue-600 font-semibold px-3 py-1 rounded border border-blue-600">Add Expense</button>
+          </div>
       </form>
     );
 }
@@ -195,8 +219,8 @@ export default function ExpensesPage() {
     return (
         <div>
         <Link href="/" className="inline-block mt-4 px-4 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 transition">Home</Link>
-        <h1>Your Expenses</h1>
         <CreateExpenseForm onExpenseCreated={fetchExpenses} />
+        <h1 className="text-2xl font-bold bg-gray-200">Your Expenses</h1>
         {editingExpense && (
           <EditExpenseForm
             expense={editingExpense}
