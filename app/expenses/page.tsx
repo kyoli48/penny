@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import type { Expense, ExpenseListProps, CreateExpenseFormProps, EditExpenseFormProps } from '@/lib/types/expense';
 
+// TODO: participantIds/user conflict; Dropdown menu w user names
 
 function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
   if (!expenses.length) return <p>No expenses yet.</p>;
@@ -107,7 +108,7 @@ function EditExpenseForm({ expense, onCancel, onSave }: EditExpenseFormProps) {
     const [name, setName] = useState(expense.name);
     const [amount, setAmount] = useState(expense.amount.toString());
     const [description, setDescription] = useState(expense.description);
-    const [paid, setPaid] = useState(expense.paid);
+    const [paid, setPaid] = useState<boolean>(expense.paid);
     const [participantIds, setParticipantIds] = useState(
       expense.users?.map(u => u.userId).join(',') || ''
     );
@@ -153,7 +154,10 @@ function EditExpenseForm({ expense, onCancel, onSave }: EditExpenseFormProps) {
             <input
               type="checkbox"
               checked={paid}
-              onChange={e => setPaid(e.target.checked)}
+              onChange={(e) => {
+                setPaid(e.target.checked) 
+                console.log(paid)
+              }}
               className="ml-2"
             />
           </label>
@@ -173,7 +177,7 @@ function EditExpenseForm({ expense, onCancel, onSave }: EditExpenseFormProps) {
 
 // Core Page
 export default function ExpensesPage() {
-    const [expenses, setExpenses] = useState([]);
+    const [expenses, setExpenses] = useState<Expense[]>([]);
     const [loading, setLoading] = useState(true);
     const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
     
@@ -199,19 +203,28 @@ export default function ExpensesPage() {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id }),
+        }).then((res) => {
+          if (res.ok) {
+            setExpenses(expenses.filter(e => e.id !== id))
+          }
         });
-        fetchExpenses();
+        
     };
 
     // onSave prop for EditExpenseForm
     const handleUpdate = async (updatedExpense: Expense) => {
-        await fetch('/api/expenses', {
+      console.log(updatedExpense)  
+      await fetch('/api/expenses', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedExpense),
+        }).then((res) => {
+          if (res.ok) {
+            // setExpenses(expenses.map(e => e.id === updatedExpense.id ? updatedExpense : e))
+            // setExpenses(...expenses, updatedExpense)
+        }}).finally(() => {
+          setEditingExpense(null)
         });
-        setEditingExpense(null); // Hide edit form
-        fetchExpenses();
     };
 
   
