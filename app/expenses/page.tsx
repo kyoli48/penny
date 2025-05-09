@@ -2,9 +2,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Select from 'react-select';
 import type { Expense, ExpenseListProps, CreateExpenseFormProps, EditExpenseFormProps } from '@/lib/types/expense';
 
-// TODO: participantIds/user conflict; Dropdown menu w user names
+// TODO: Dropdown menu w user names
 
 function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
   if (!expenses.length) return <p>No expenses yet.</p>;
@@ -35,6 +36,19 @@ function CreateExpenseForm({ onExpenseCreated }: CreateExpenseFormProps) {
     const [description, setDescription] = useState('');
     const [paid, setPaid] = useState(false);
     const [participantIds, setParticipantIds] = useState('');
+    const [availableUsers, setAvailableUsers] = useState<{ id: string; name: string }[]>([]);
+
+    // get users on mount
+    useEffect(() => {
+      fetch('/api/users')
+        .then(res => res.json())
+        .then(users => {
+          setAvailableUsers(users.map((u: any) => ({
+            id: u.id,
+            name: `${u.first_name} ${u.last_name}`
+          })));
+        });
+    }, []);
   
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
@@ -91,11 +105,22 @@ function CreateExpenseForm({ onExpenseCreated }: CreateExpenseFormProps) {
                     onChange={e => setPaid(e.target.checked)} 
                 />
             </label>
-            <input
-                value={participantIds}
-                onChange={e => setParticipantIds(e.target.value)}
-                placeholder="Participant User IDs (comma separated)"
-                className="border rounded flex-1"
+            <Select
+              isMulti
+              options={availableUsers.map(user => ({
+                value: user.id,
+                label: user.name?.trim() || user.id
+              }))}
+              value={participantIds.split(',').map(id => {
+                const user = availableUsers.find(u => u.id === id);
+                return user ? { value: user.id, label: user.name?.trim() || user.id } : null;
+              }).filter(Boolean)}
+              onChange={(selectedOptions) => {
+                const ids = selectedOptions.map((opt) => opt.value);
+                setParticipantIds(ids.join(','));
+              }}
+              className="border rounded flex-1"
+              placeholder="Select participants..."
             />
             <button type="submit" className="text-blue-600 font-semibold px-3 py-1 rounded border border-blue-600">Add Expense</button>
           </div>
@@ -112,6 +137,19 @@ function EditExpenseForm({ expense, onCancel, onSave }: EditExpenseFormProps) {
     const [participantIds, setParticipantIds] = useState(
       expense.participantIds.join(',')
     );
+    const [availableUsers, setAvailableUsers] = useState<{ id: string; name: string }[]>([]);
+
+    // get users on mount
+    useEffect(() => {
+      fetch('/api/users')
+        .then(res => res.json())
+        .then(users => {
+          setAvailableUsers(users.map((u: any) => ({
+            id: u.id,
+            name: `${u.first_name} ${u.last_name}`
+          })));
+        });
+    }, []);
   
     const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
@@ -161,12 +199,23 @@ function EditExpenseForm({ expense, onCancel, onSave }: EditExpenseFormProps) {
               className="ml-2"
             />
           </label>
-          <input
-            value={participantIds}
-            onChange={e => setParticipantIds(e.target.value)}
-            placeholder="Participant User IDs (comma separated)"
-            className="block mb-2 p-1 border rounded w-full"
-          />
+          <Select
+              isMulti
+              options={availableUsers.map(user => ({
+                value: user.id,
+                label: user.name?.trim() || user.id
+              }))}
+              value={participantIds.split(',').map(id => {
+                const user = availableUsers.find(u => u.id === id);
+                return user ? { value: user.id, label: user.name?.trim() || user.id } : null;
+              }).filter(Boolean)}
+              onChange={(selectedOptions) => {
+                const ids = selectedOptions.map((opt) => opt.value);
+                setParticipantIds(ids.join(','));
+              }}
+              className="block mb-2 border rounded w-full"
+              placeholder="Select participants..."
+            />
           <button type="submit" className="mr-2 bg-blue-600 text-white px-3 py-1 rounded">Save</button>
           <button type="button" onClick={onCancel} className="bg-gray-400 text-white px-3 py-1 rounded">Cancel</button>
         </form>
@@ -211,7 +260,7 @@ export default function ExpensesPage() {
         
     };
 
-    // onSave prop for EditExpenseForm
+    // button handler for onSave 
     const handleUpdate = async (updatedExpense: Expense) => {
       console.log(updatedExpense)  
       await fetch('/api/expenses', {
@@ -220,8 +269,6 @@ export default function ExpensesPage() {
         body: JSON.stringify(updatedExpense),
         }).then((res) => {
           if (res.ok) {
-            // setExpenses(expenses.map(e => e.id === updatedExpense.id ? updatedExpense : e))
-            // setExpenses(...expenses, updatedExpense)
         }}).finally(() => {
           setEditingExpense(null)
         });
