@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
+import { formatExpenseForClient } from '@/lib/types/expense';
+
+
 
 // POST, GET, PUT, DELETE endpoints
 
@@ -37,7 +40,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Failed to create expense" }, { status: 500 });
         }
 
-        return NextResponse.json( expenseCreated, { status: 200 });
+        return NextResponse.json( formatExpenseForClient(expenseCreated), { status: 200 });
     } catch (error) {
         console.error(error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -65,10 +68,9 @@ export async function GET(req: NextRequest) {
         });
 
         // Map to just the expense objects, but include participants
-        const expenses = userExpenses.map(ue => ({
-            ...ue.expense,
-            users: ue.expense.users // array of participant join records
-        }));
+        const expenses = userExpenses.map(ue =>
+            formatExpenseForClient(ue.expense)
+          );
 
         return NextResponse.json(expenses, { status: 200 });
     } catch (error) {
@@ -104,7 +106,7 @@ export async function PUT(req: NextRequest) {
         include: { users: true }
     });
 
-    return NextResponse.json(updatedExpense, { status: 200 });
+    return NextResponse.json( formatExpenseForClient(updatedExpense), { status: 200 });
 }
 
 export async function DELETE(req: NextRequest) {

@@ -18,7 +18,7 @@ function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
           <br />
           Paid: {exp.paid ? 'Yes' : 'No'}
           <br />
-          Participants: {exp.users?.map(u => u.userId).join(', ')}
+          Participants: {exp.participantIds.join(', ')}
           <br />
           <button onClick={() => onEdit(exp)} className="mr-2 text-blue-600">Edit</button>
           <button onClick={() => onDelete(exp.id)} className="text-red-600">Delete</button>
@@ -110,7 +110,7 @@ function EditExpenseForm({ expense, onCancel, onSave }: EditExpenseFormProps) {
     const [description, setDescription] = useState(expense.description);
     const [paid, setPaid] = useState<boolean>(expense.paid);
     const [participantIds, setParticipantIds] = useState(
-      expense.users?.map(u => u.userId).join(',') || ''
+      expense.participantIds.join(',')
     );
   
     const handleSubmit = (e: React.FormEvent) => {
