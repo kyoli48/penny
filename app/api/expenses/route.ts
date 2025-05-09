@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
-import { formatExpenseForClient } from '@/lib/types/expense';
-
-
+import { ExpenseWithUsers, formatExpenseForClient } from '@/lib/types/expense';
 
 // POST, GET, PUT, DELETE endpoints
 
@@ -20,7 +18,6 @@ export async function POST(req: NextRequest) {
         // Ensure the creator is always included and no duplicates
         const allParticipantIds = Array.from(new Set([userId, ...participantIds]));
 
-
         const expenseCreated = await db.expenses.create({
             data: {
                 name: name,
@@ -33,7 +30,13 @@ export async function POST(req: NextRequest) {
                     }))
                 }
             },      
-            include: { users: true }      
+            include: {
+                users: {
+                  include: {
+                    user: true
+                  }
+                }
+              }                    
         })
 
         if (!expenseCreated) {
@@ -61,7 +64,11 @@ export async function GET(req: NextRequest) {
             include: {
                 expense: {
                     include: {
-                        users: true // includes all participants for each expense
+                        users: {
+                            include: {
+                              user: true // fetch the actual user object (id, name, etc.)
+                            }
+                        }
                     }
                 }
             }
@@ -103,7 +110,13 @@ export async function PUT(req: NextRequest) {
                 }))
             }
         },
-        include: { users: true }
+        include: {
+            users: {
+              include: {
+                user: true
+              }
+            }
+          }          
     });
 
     return NextResponse.json( formatExpenseForClient(updatedExpense), { status: 200 });

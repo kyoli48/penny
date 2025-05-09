@@ -5,8 +5,6 @@ import { useEffect, useState } from 'react';
 import Select from 'react-select';
 import type { Expense, ExpenseListProps, CreateExpenseFormProps, EditExpenseFormProps } from '@/lib/types/expense';
 
-// TODO: Dropdown menu w user names
-
 function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
   if (!expenses.length) return <p>No expenses yet.</p>;
   return (
@@ -19,7 +17,7 @@ function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
           <br />
           Paid: {exp.paid ? 'Yes' : 'No'}
           <br />
-          Participants: {exp.participantIds.join(', ')}
+          Participants: {exp.users?.map(u => u.name).join(', ')}
           <br />
           <button onClick={() => onEdit(exp)} className="mr-2 text-blue-600">Edit</button>
           <button onClick={() => onDelete(exp.id)} className="text-red-600">Delete</button>
@@ -116,9 +114,12 @@ function CreateExpenseForm({ onExpenseCreated }: CreateExpenseFormProps) {
                 return user ? { value: user.id, label: user.name?.trim() || user.id } : null;
               }).filter(Boolean)}
               onChange={(selectedOptions) => {
-                const ids = selectedOptions.map((opt) => opt.value);
+                const ids = (selectedOptions ?? [])
+                  .filter((opt) => opt != null)
+                  .map((opt) => opt.value);
                 setParticipantIds(ids.join(','));
               }}
+              
               className="border rounded flex-1"
               placeholder="Select participants..."
             />
@@ -210,9 +211,12 @@ function EditExpenseForm({ expense, onCancel, onSave }: EditExpenseFormProps) {
                 return user ? { value: user.id, label: user.name?.trim() || user.id } : null;
               }).filter(Boolean)}
               onChange={(selectedOptions) => {
-                const ids = selectedOptions.map((opt) => opt.value);
+                const ids = (selectedOptions ?? [])
+                  .filter((opt) => opt != null)
+                  .map((opt) => opt.value);
                 setParticipantIds(ids.join(','));
               }}
+              
               className="block mb-2 border rounded w-full"
               placeholder="Select participants..."
             />

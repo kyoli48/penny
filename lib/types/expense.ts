@@ -1,9 +1,16 @@
 import { Prisma } from '@prisma/client';
 
 // defines the type returned by Prisma with the users relation
-type ExpenseWithUsers = Prisma.ExpensesGetPayload<{
-  include: { users: true };
-}>;
+export type ExpenseWithUsers = Prisma.ExpensesGetPayload<{
+    include: {
+      users: {
+        include: {
+          user: true; // get user fields (name, id, etc.)
+        };
+      };
+    };
+  }>;
+
 // helper function to convert Prisma type to client type
 export function formatExpenseForClient(expense: ExpenseWithUsers) {
   return {
@@ -12,6 +19,10 @@ export function formatExpenseForClient(expense: ExpenseWithUsers) {
     amount: expense.amount,
     description: expense.description ?? undefined,
     paid: expense.paid,
+    users: expense.users.map(u => ({
+        userId: u.userId,
+        name: `${u.user.first_name} ${u.user.last_name}`.trim() || u.user.id,
+      })),
     participantIds: expense.users.map(u => u.userId),
   };
 }
@@ -22,7 +33,8 @@ export function formatExpenseArrayForClient(expenses: ExpenseWithUsers[]) {
 
 export type UserExpense = {
     userId: string;
-    // more fields if needed
+    name: string;
+    // update to include more fields if needed
 };
 
 export type Expense = {
@@ -31,6 +43,10 @@ export type Expense = {
     amount: number;
     description?: string;
     paid: boolean;
+    users?: {
+        userId: string;
+        name: string;
+    }[];
     participantIds: string[];
   };
 
